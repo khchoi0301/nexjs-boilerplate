@@ -12,17 +12,21 @@ const NavbarContainer = ({ user }) => {
 		 	    </Navbar.Brand>
 				<Navbar.Toggle aria-controls="basic-navbar-nav" />
 				<Navbar.Collapse id="basic-navbar-nav">
-					<Nav className="mr-auto" style={{ width: "100%", justifyContent: "space-between" }} >
-						<Link href='/'>
-							<a>
-								about
-							</a>
-						</Link>
-						<Link href='/signin'>
-							<a>
-								로그인
-							</a>
-						</Link>
+					<Nav className="mr-auto" style={{ width: "100%", justifyContent: "flex-end" }} >
+						{user
+							?	<>
+								<Link href='/mypage'>
+									<a>
+									마이페이지
+									</a>
+								</Link>
+							</>
+							 : <Link href='/signin'>
+								<a>
+									로그인
+								</a>
+							</Link>
+						}
 					</Nav>
 				</Navbar.Collapse>
 			</Navbar>
