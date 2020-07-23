@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
+const User = require("../models/user");
+
 require("dotenv").config();
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
@@ -81,18 +83,14 @@ exports.kakaoLogin = (req, res, next) => {
 
 exports.signin = async (req, res, next) => {
 	// passport auth 성공 시에만 함수가 호출됨
-	const user = req.user;
+	const user = await searchUser(req);
 	const token = await signJWT(user);
 
 	// 마지막 로그인 시간 수정 후 저장
 	user.D_LASTLOGIN = new Date();
 	await user.save();
 
-	// token을 저장
 	res.json({ token });
-
-	// req.JWTtoken = token;
-	// next();
 };
 
 exports.logout = (req, res, next) => {
@@ -100,3 +98,14 @@ exports.logout = (req, res, next) => {
 	req.logout();
 	res.json();
 };
+
+const searchUser = async (req, _id) => {
+	const { user = {} } = req;
+	const { provider, id, email } = user;
+	console.log("searchUser", user);
+	const condition = _id ? { _id: _id } : email ? { email } : { provider, id };
+	const userData = await User.findOne(condition) || {};
+	return userData;
+};
+
+module.exports.searchUser = searchUser;
