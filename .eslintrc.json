@@ -1,0 +1,53 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "standard"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly",
+        "react" : "writable"
+    },
+    "parser": "babel-eslint", // Parsing error: Unexpected token =
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react"
+    ],
+    "settings": {
+        "react": {
+          "version": "detect"
+        }
+    },
+    "rules": {
+        "semi": ["error", "always"], // 끝에 ; 항상 사용
+        "indent": ["error", "tab"], // Tab으로 인덴테이션
+        "no-tabs": "off",   //["error", { "allowIndentationTabs": true }],
+        "quotes": ["error", "double"], // "" 사용
+        "comma-dangle": ["error", "never"], // obj, array 등에서 마지막 원소뒤에 , 사용 안함
+        "spaced-comment": ["error", "always"], // 주석 뒤 공백
+        "brace-style": ["error", "1tbs"],
+        "no-mixed-spaces-and-tabs": "off",//["error", "smart-tabs"],
+        "no-warning-comments": [0], // ?
+        "no-extend-native": [0], // ?
+        "no-unused-vars": "warn", // 사용하지 않는 변수 정의
+        "camelcase": "off", // 변수명에 _사용
+        "handle-callback-err" : "off", // 파라미터에 err 있을때 콜백 처리
+        "no-mixed-operators" : "warn",
+        // for react
+        "react/react-in-jsx-scope": "off", // import React from "react" 없어도 에러 발생 안함
+        "react/prop-types": "off", // react type검사 안함
+        "react/jsx-no-undef": "off", // import React 안하고 <React.Fragment> 참조했을 때
+        "react/jsx-key": "warn"
+    }
+}
