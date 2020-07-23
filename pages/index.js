@@ -1,12 +1,12 @@
 import React from "react";
-import Layout from "../components/Layout";
+import Layout from "../components/Layout/Layout";
 
 const Index = () => {
 	return (
-		<Layout>
-			<div>
+		<Layout title="Nextjs">
+			<h1>
                 welcome
-			</div>
+			</h1>
 		</Layout>
 	);
 };
