@@ -69,14 +69,10 @@ exports.signup = (req, res, next) => {
 };
 
 exports.kakaoLogin = (req, res, next) => {
-	passport.authenticate("kakao", (err, user, registerd) => {
-		console.log("oauth", err, user, registerd);
+	passport.authenticate("kakao", (err, user, registered) => {
+		console.log("oauth", err, user, registered); // registered 최초 가입 인지, 기존유저 로그인 인지
 		req.logIn(user, async () => {
-			if (registerd) {
-				res.redirect("/");
-			} else {
-				res.redirect("/");
-			}
+			res.redirect("/");
 		});
 	})(req, res, next);
 };

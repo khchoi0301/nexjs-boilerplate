@@ -7,8 +7,8 @@ const Mypage = () => {
 
 	useEffect(() => {
 		const { user } = getSessionFromClient();
-		if (user && user.user) {
-			setUser(user.user);
+		if (user && (user.username)) {
+			setUser(user.username);
 		} else {
 			if (typeof window !== "undefined") {
 				console.log("Mypage, not logined");
