@@ -26,9 +26,9 @@ module.exports = () => {
 	}, (req, email, unhashedPw, done) => {
 		User.findOne({ email: email }).select("password")
 			.then(async (user) => {
-				// user doesn't exist
+				// user doesn't exist, 미가입 이메일
 				if (!user) {
-					return done(null, false, { message: "존재하지 않는 email입니다" });
+					return done(null, false, { message: "email 및 password를 다시 확인해 주세요" });
 				}
 
 				const result = bcrypt.compareSync(unhashedPw, user.password);
