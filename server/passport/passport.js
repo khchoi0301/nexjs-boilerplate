@@ -84,6 +84,23 @@ module.exports = () => {
 		});
 	}));
 
+	passport.use("local-link", new LocalStrategy({ // local 전략
+		usernameField: "verified",
+		passwordField: "link",
+		session: true, // 세션에 저장 여부
+		passReqToCallback: true
+	}, (req, verified, unhashedPw, done) => {
+		console.log("local-link", verified);
+		User.findOne({ verify_key: verified })
+			.then(async (user) => {
+				if (!user) {
+					return done(null, false, { message: "존재하지 않는 link입니다" });
+				}
+
+				return done(null, user);
+			});
+	}));
+
 	passport.use("kakao", new KakaoStrategy({
 		clientID: KAKAO_JS_KEY,
 		// clientSecret: "", // clientSecret을 사용하지 않는다면 넘기지 말거나 빈 스트링을 넘길 것

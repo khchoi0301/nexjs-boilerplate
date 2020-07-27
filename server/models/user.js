@@ -7,10 +7,9 @@ const userSchema = mongoose.Schema({
 	provider: String,
 	id: String,
 	mobile: String,
+	confirmed: { type: Boolean, default: false },
+	verify_key: String,
 	address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
-	subscription: { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
-	surveys: [{ type: mongoose.Schema.Types.ObjectId, ref: "Survey" }],
-	company: String,
 	createdAt: { type: Date, default: new Date() }
 });
 userSchema.index({ provider: 1, id: 1 }, { unique: true, sparse: true }); // TODO:카카오 중복체크 해결필요
