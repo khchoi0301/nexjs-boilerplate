@@ -172,22 +172,16 @@ exports.googleLogin = (req, res, next) => {
 };
 
 exports.signin = async (req, res, next) => {
-  passport.authenticate("local-sign-in",async  (err, usr, info) => {
+  passport.authenticate("local-sign-in",async  (err, user, info) => {
     if (err) {
       console.warn("==err", err);
       return res.status(409).json(err);
     }
 
-    if (!usr) {
+    if (!user) {
       console.log("==info", info);
       return res.status(409).json(info.message);
     }
-
-    
-    // 마지막 로그인 시간 수정 후 저장
-    const user = await searchUser(req);
-    user.D_LASTLOGIN = new Date();
-    await user.save();
 
     console.log("user", user)
 

@@ -30,24 +30,27 @@ module.exports = () => {
 		passwordField: "password",
 		session: true, // 세션에 저장 여부
 		passReqToCallback: true
-	}, (req, email, unhashedPw, done) => {
-		User.findOne({ email: email }).select("password")
-			.then(async (user) => {
-				// user doesn't exist, 미가입 이메일
-				if (!user) {
-					return done(null, false, { message: "email 및 password를 다시 확인해 주세요" });
-				}
+	}, async (req, email, unhashedPw, done) => {
+		const user = await User.findOne({ email: email }).select("password email name confirmed");
+		console.log("local-sign-in", user);
 
-				const result = bcrypt.compareSync(unhashedPw, user.password);
+		if (!user) {
+			return done(null, false, { message: "email 및 password를 다시 확인해 주세요" });
+		}
 
-				// wrong password
-				if (!result) {
-					return done(null, false, { message: "email 및 password를 다시 확인해 주세요" });
-				}
+		const result = bcrypt.compareSync(unhashedPw, user.password);
 
-				// sign in
-				return done(null, user);
-			});
+		// wrong password
+		if (!result) {
+			return done(null, false, { message: "email 및 password를 다시 확인해 주세요" });
+		}
+
+		// update lastLogin
+		user.lastLogin = new Date();
+		await user.save();
+
+		// sign in
+		return done(null, user);
 	}));
 
 	passport.use("local-sign-up", new LocalStrategy({ // local 전략
