@@ -76,24 +76,39 @@ const sendEmail = async (email, url) => {
 };
 
 const verifyEmail = async (user) => {
-  const { _id, email } = user;
+  let { _id, email } = user;
+  
+  if(!_id){
+    const usr = await User.findOne({email:email});
+    _id = usr._id
+  }
+  
   console.log("user", _id, email);
 
   // verify key를 생성하고 user db에  저장
   const verify_key = crypto.randomBytes(256).toString("hex").substr(50, 25);
   const url = `http://localhost:3000/api/loginwithemail?verified=${verify_key}&link=${verify_key}`;
-  const userdata = await User.findByIdAndUpdate(_id, { verify_key });
+  await User.findByIdAndUpdate(_id, { verify_key });
+
+  // verify key를 일정 시간 후 무효화 시킴
   setTimeout(() => {
     console.log("===settimeout", _id, verify_key, User.findByIdAndUpdate);
     User.findByIdAndUpdate( _id, { verify_key : "Invalid" }, (err, res)=>{
       console.log("res", err, res)
     });
   }, 1000 * 60 * 5 ); // 5분간만 유효함 
-  console.log("userdata", userdata);
 
   // 메일로 해당 키를 포함한 링크를 보낸다.
   await sendEmail(email, url);
 };
+
+exports.sendVerifyEmail = async (req, res) => {
+  const { body = {} } = req;
+  const { email } = body;
+  console.log("sendVerifyEmail", email)
+  await verifyEmail({email});
+  res.json({email});
+}
 
 exports.loginwithemail = async (req, res, next) => {
   passport.authenticate("local-link", async (err, user, info) => {
@@ -125,7 +140,7 @@ exports.loginwithemail = async (req, res, next) => {
 
 exports.signup = (req, res, next) => {
   console.log("signup", passport);
-  passport.authenticate("local-sign-up", (err, user, info) => {
+  passport.authenticate("local-sign-up", async (err, user, info) => {
     if (err) {
       console.warn("==err", err);
       return res.status(409).json(err);
@@ -139,7 +154,7 @@ exports.signup = (req, res, next) => {
     console.log("verifyEmail", user);
     verifyEmail(user);
 
-    res.json({redirect:"verify"});
+    res.json({verify: user.email});
 
   })(req, res, next);
 };
@@ -190,8 +205,8 @@ exports.signin = async (req, res, next) => {
       res.json({ token });
     } else {
       console.log("verifyEmail", user);
-      verifyEmail(user);
-      res.json({redirect:"verify"});
+      await verifyEmail(user);
+      res.json({verify: user.email});
     }
 
   })(req, res, next);
@@ -214,3 +229,4 @@ const searchUser = async (req, _id) => {
 };
 
 module.exports.searchUser = searchUser;
+

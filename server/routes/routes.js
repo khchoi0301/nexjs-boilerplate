@@ -9,19 +9,22 @@ router.post("/signup", userCtrl.validateSignup, userCtrl.signup);
 router.post("/signin", userCtrl.signin);// passport.authenticate("local-sign-in"),
 router.get("/logout", userCtrl.logout);
 
-// 카카오 인증
+// kakao auth
 router.get("/auth/kakao", passport.authenticate("kakao", { failureRedirect: "/signin" }));
 router.use("/auth/kakao/callback", userCtrl.kakaoLogin);
 
+// facebook auth
 router.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"], failureRedirect: "/signin" }));
 router.use("/auth/facebook/callback", userCtrl.facebookLogin);
 
+// google auth
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], failureRedirect: "/signin" }));
 router.use("/auth/google/callback", userCtrl.googleLogin);
 
-router.use("/loginwithemail", userCtrl.loginwithemail);
+// login with email magic link
+router.get("/loginwithemail", userCtrl.loginwithemail);
 
-// 구글 인증
-// TODO: 구글 인증
+// send email with magic link
+router.post("/sendverifyemail", userCtrl.sendVerifyEmail);
 
 module.exports = router;

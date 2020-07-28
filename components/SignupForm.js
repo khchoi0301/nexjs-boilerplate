@@ -29,7 +29,7 @@ class SignUpForm extends Component {
   	const { name, email, password, agreement } = this.state;
     event.preventDefault();
     
-    if (!agreement) {
+    if (name && !agreement) {
       this.showError({ message: "필수 동의 입니다." });
       return;
     };
@@ -38,14 +38,6 @@ class SignUpForm extends Component {
   		this.setState({ error: "", isLoading: true });
 
   		signUpUser(name, email, password, this.props.title)
-  			.then((cmd) => {
-  				if (cmd === "sign up") {
-  					Router.push("/");
-  				} else {
-  					Router.push("/");
-  				}
-  				console.log("signUpUser router pushed");
-  			})
   			.catch(this.showError);
   	} else {
   		this.showError({ message: "값을 입력해 주세요" });
