@@ -107,26 +107,34 @@ module.exports = () => {
 	passport.use("kakao", new KakaoStrategy({
 		clientID: KAKAO_JS_KEY,
 		// clientSecret: "", // clientSecret을 사용하지 않는다면 넘기지 말거나 빈 스트링을 넘길 것
-		callbackURL: "api/oauth"
+		callbackURL: "/api/auth/kakao/callback"
 	}, async (accessToken, refreshToken, profile, done) => {
-		const { provider, id, username, _json } = profile;
+		console.log("kakao profile", profile);
+
+		const { id, username, _json } = profile;
+		const kakaoId = id;
+		const kakaoName = username;
 		const email = _json && _json.kakao_account && _json.kakao_account.email;
-		console.log("kakao login", provider, id, username, email, _json.kakao_account);
 
 		try {
-			const user = await User.findOne({ provider, id }).select("password");
-			// 없으면 db 추가
-			if (!user) {
-				await User.create({
-					name: username,
-					provider,
-					id,
-					email
-				});
+			// email 없으면 생성
+			// option, new : 생성 후 doc를 반환, upsert : 없으면 생성(insert), 있으면 update
+			const user = await User.findOneAndUpdate({ email: email }, { email: email }, { new: true, upsert: true });
+
+			// kakao id 없으면 업데이트(최초 소셜 로그인 경우 or email에 소셜 추가한 경우)
+			if (!user.kakaoId) {
+				user.kakaoId = kakaoId;
+				user.kakaoName = kakaoName;
+				if (!user.name) {
+					user.name = kakaoName;
+				}
+				await user.save();
 			}
-			return done(null, profile, !!user);
+
+			// 로그인
+			return done(null, user);
 		} catch (error) {
-			console.warn("signup err", error);
+			console.warn("KakaoStrategy err", error);
 			return done(null, false, { message: error });
 		}
 	}));

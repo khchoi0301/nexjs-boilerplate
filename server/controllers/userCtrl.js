@@ -145,8 +145,8 @@ exports.signup = (req, res, next) => {
 };
 
 exports.kakaoLogin = (req, res, next) => {
-  passport.authenticate("kakao", (err, user, registered) => {
-    console.log("oauth", err, user, registered); // registered 최초 가입 인지, 기존유저 로그인 인지
+  passport.authenticate("kakao", (err, user) => {
+    console.log("kakaoLogin", err, user);
     req.logIn(user, async () => {
       res.redirect("/");
     });

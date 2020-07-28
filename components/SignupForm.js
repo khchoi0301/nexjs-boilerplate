@@ -122,7 +122,7 @@ class SignUpForm extends Component {
           <div className="or">또는</div>
           <div className="row">
             <div className="col-md-offset-1 col-md-5">
-              <a href="/api/kakao">
+              <a href="/api/auth/kakao">
                 <img width="400px" src="/img/kakao_login_large_wide.png" />
               </a>
             </div>

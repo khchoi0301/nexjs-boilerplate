@@ -10,8 +10,8 @@ router.post("/signin", userCtrl.signin);// passport.authenticate("local-sign-in"
 router.get("/logout", userCtrl.logout);
 
 // 카카오 인증
-router.get("/kakao", passport.authenticate("kakao", { failureRedirect: "/signin" }));
-router.use("/oauth", userCtrl.kakaoLogin);
+router.get("/auth/kakao", passport.authenticate("kakao", { failureRedirect: "/signin" }));
+router.use("/auth/kakao/callback", userCtrl.kakaoLogin);
 
 router.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"], failureRedirect: "/signin" }));
 router.use("/auth/facebook/callback", userCtrl.facebookLogin);
