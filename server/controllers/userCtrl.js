@@ -162,6 +162,15 @@ exports.facebookLogin = (req, res, next) => {
   })(req, res, next);
 };
 
+exports.googleLogin = (req, res, next) => {
+  passport.authenticate("google", (err, user) => {
+    console.log("googleLogin", err, user);
+    req.logIn(user, async () => {
+      res.redirect("/");
+    });
+  })(req, res, next);
+};
+
 exports.signin = async (req, res, next) => {
   passport.authenticate("local-sign-in",async  (err, usr, info) => {
     if (err) {

@@ -2,6 +2,8 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const KakaoStrategy = require("passport-kakao").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
@@ -9,6 +11,8 @@ require("dotenv").config();
 const KAKAO_JS_KEY = process.env.KAKAO_JS_KEY;
 const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 module.exports = () => {
 	passport.serializeUser((user, done) => { // Strategy 성공 시 호출됨
@@ -119,7 +123,9 @@ module.exports = () => {
 		try {
 			// email 없으면 생성
 			// option, new : 생성 후 doc를 반환, upsert : 없으면 생성(insert), 있으면 update
-			const user = await User.findOneAndUpdate({ email: email }, { email: email }, { new: true, upsert: true });
+			const user = await User.findOneAndUpdate({ email: email }, {
+				email: email, lastLogin: new Date()
+		   }, { new: true, upsert: true });
 
 			// kakao id 없으면 업데이트(최초 소셜 로그인 경우 or email에 소셜 추가한 경우)
 			if (!user.kakaoId) {
@@ -156,7 +162,9 @@ module.exports = () => {
 		try {
 			// email 없으면 생성
 			// option, new : 생성 후 doc를 반환, upsert : 없으면 생성(insert), 있으면 update
-			const user = await User.findOneAndUpdate({ email: email }, { email: email }, { new: true, upsert: true });
+			const user = await User.findOneAndUpdate({ email: email }, {
+				email: email, lastLogin: new Date()
+		   }, { new: true, upsert: true });
 
 			// facebook id 없으면 업데이트(최초 소셜 로그인 경우 or email에 소셜 추가한 경우)
 			if (!user.facebookId) {
@@ -175,5 +183,50 @@ module.exports = () => {
 			return done(null, false, { message: error });
 		}
 	  }
+	));
+
+	passport.use(new GoogleStrategy({
+		clientID: GOOGLE_CLIENT_ID,
+		clientSecret: GOOGLE_CLIENT_SECRET,
+		callbackURL: "/api/auth/google/callback"
+	}, async (accessToken, refreshToken, profile, done) => {
+		console.log("google profile", profile);
+
+		const { id, displayName, emails, photos, _json } = profile;
+
+		const googleId = id;
+		const googleName = displayName;
+		const email = emails[0] && emails[0].value;
+		const google_email_verified = emails[0] && emails[0].verified;
+		const googlePhoto = photos[0] && photos[0].value;
+		const googleLocale = _json && _json.locale;
+
+		try {
+			// email 없으면 생성
+			// option, new : 생성 후 doc를 반환, upsert : 없으면 생성(insert), 있으면 update
+			const user = await User.findOneAndUpdate({ email: email }, {
+				 email: email, lastLogin: new Date()
+			}, { new: true, upsert: true });
+
+			// google id 없으면 업데이트(최초 소셜 로그인 경우 or email에 소셜 추가한 경우)
+			if (!user.googleId) {
+				user.googleId = googleId;
+				user.googleName = googleName;
+				user.google_email_verified = google_email_verified;
+				user.googlePhoto = googlePhoto;
+				user.googleLocale = googleLocale;
+				if (!user.name) {
+					user.name = googleName;
+				}
+				await user.save();
+			}
+
+			// 로그인
+			return done(null, user);
+		} catch (error) {
+			console.warn("GoogleStrategy err", error);
+			return done(null, false, { message: error });
+		}
+	}
 	));
 };

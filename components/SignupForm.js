@@ -134,6 +134,13 @@ class SignUpForm extends Component {
               </a>
             </div>
           </div>
+          <div className="row">
+            <div className="col-md-offset-1 col-md-5">
+              <a href="/api/auth/google">
+                <img width="400px" src="/img/google_login_light_normal_web@2x.png" />
+              </a>
+            </div>
+          </div>
           <div className="col-md-6">
             <div ui-view></div>
           </div>
