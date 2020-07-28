@@ -221,9 +221,9 @@ exports.logout = (req, res, next) => {
 
 const searchUser = async (req, _id) => {
   const { user = {} } = req;
-  const { provider, id, email } = user;
+  const { googleId, email } = user;
   console.log("searchUser", user);
-  const condition = _id ? { _id: _id } : email ? { email } : { provider, id };
+  const condition = _id ? { _id: _id } : email ? { email } : { googleId };
   const userData = (await User.findOne(condition)) || {};
   return userData;
 };

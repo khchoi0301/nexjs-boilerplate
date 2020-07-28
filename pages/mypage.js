@@ -1,6 +1,6 @@
 import React from "react";
 import Layout from "../components/Layout/Layout";
-import My from "../components/MyPage";
+import My from "../components/MyPage/MyPage";
 import { authInitialProps } from "../lib/auth";
 
 export const Mypage = () => {
