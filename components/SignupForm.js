@@ -11,6 +11,7 @@ class SignUpForm extends Component {
     name: "",
     email: "",
     password: "",
+    agreement: false,
     error: "",
     isLoading: false,
   };
@@ -19,9 +20,20 @@ class SignUpForm extends Component {
   	this.setState({ [event.target.name]: event.target.value });
   }
 
+  handleClick = event => {
+  	const { agreement } = this.state;
+  	this.setState({ [event.target.name]: !agreement });
+  }
+
   handleSubmit = event => {
-  	const { name, email, password } = this.state;
-  	event.preventDefault();
+  	const { name, email, password, agreement } = this.state;
+    event.preventDefault();
+    
+    if (!agreement) {
+      this.showError({ message: "필수 동의 입니다." });
+      return;
+    };
+
   	if (email && password) {
   		this.setState({ error: "", isLoading: true });
 
@@ -52,7 +64,7 @@ class SignUpForm extends Component {
   }
 
   render() {
-    const { name, email, password, isLoading, error } = this.state;
+    const { name, email, password, agreement, isLoading, error } = this.state;
 
     return (
       <div>
@@ -101,6 +113,17 @@ class SignUpForm extends Component {
               value={password}
             />
           </label>
+          {this.props.title === "sign up" && (
+            <label>
+              <input 
+                type="checkbox" 
+                name="agreement" 
+                onClick={this.handleClick}
+                value={agreement}
+                className="check-box" />
+              <a href="/" target="_blank">서비스 이용 약관</a>에 동의 합니다
+            </label>
+          )}
           <div className="signup-error">{error || ""}</div>
           <button
             className="delivery form-submit"
@@ -214,6 +237,10 @@ class SignUpForm extends Component {
             border-radius: 4px;
             margin-top: 30px;
             border: 1px;
+          }
+          .check-box {
+            margin-top: 1rem;
+            margin-right: 8px;
           }
           .row {
             margin-top: 1.3rem;

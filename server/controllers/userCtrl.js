@@ -20,7 +20,7 @@ exports.validateSignup = (req, res, next) => {
   // sanitizeBody example Hello world :>)  to  Hello world :&gt;)
 
   // Name is non-null and is 2 to 15 characters
-  req.checkBody("name", "Enter a name").notEmpty();
+  req.checkBody("name", "이름을 입력해 주세요").notEmpty();
   req
     .checkBody("name", "Name must be between 2 and 15 character")
     .isLength({ min: 2, max: 15 });
