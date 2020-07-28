@@ -127,6 +127,13 @@ class SignUpForm extends Component {
               </a>
             </div>
           </div>
+          <div className="row">
+            <div className="col-md-offset-1 col-md-5">
+              <a href="/api/auth/facebook">
+                <img width="400px" src="/img/facebook_login.png" />
+              </a>
+            </div>
+          </div>
           <div className="col-md-6">
             <div ui-view></div>
           </div>
@@ -200,6 +207,9 @@ class SignUpForm extends Component {
             border-radius: 4px;
             margin-top: 30px;
             border: 1px;
+          }
+          .row {
+            margin-top: 1.3rem;
           }
         `}</style>
       </div>

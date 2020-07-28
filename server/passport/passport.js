@@ -1,11 +1,14 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const KakaoStrategy = require("passport-kakao").Strategy;
+const FacebookStrategy = require("passport-facebook").Strategy;
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 const KAKAO_JS_KEY = process.env.KAKAO_JS_KEY;
+const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
+const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
 
 module.exports = () => {
 	passport.serializeUser((user, done) => { // Strategy 성공 시 호출됨
@@ -127,4 +130,42 @@ module.exports = () => {
 			return done(null, false, { message: error });
 		}
 	}));
+
+	passport.use(new FacebookStrategy({
+		clientID: FACEBOOK_APP_ID,
+		clientSecret: FACEBOOK_APP_SECRET,
+		callbackURL: "/api/auth/facebook/callback",
+		// passReqToCallback: true
+		profileFields: ["id", "emails", "name"]
+	  }, async (accessToken, refreshToken, profile, done) => {
+		console.log("facebook profile", profile);
+
+		const { id, name, emails } = profile;
+		const facebookId = id;
+		const facebookName = `${name.familyName} ${name.givenName}`;
+		const email = emails[0] && emails[0].value;
+
+		try {
+			// email 없으면 생성
+			// option, new : 생성 후 doc를 반환, upsert : 없으면 생성(insert), 있으면 update
+			const user = await User.findOneAndUpdate({ email: email }, { email: email }, { new: true, upsert: true });
+
+			// facebook id 없으면 업데이트(최초 소셜 로그인 경우 or email에 소셜 추가한 경우)
+			if (!user.facebookId) {
+				user.facebookId = facebookId;
+				user.facebookName = facebookName;
+				if (!user.name) {
+					user.name = facebookName;
+				}
+				await user.save();
+			}
+
+			// 로그인
+			return done(null, user);
+		} catch (error) {
+			console.warn("FacebookStrategy err", error);
+			return done(null, false, { message: error });
+		}
+	  }
+	));
 };

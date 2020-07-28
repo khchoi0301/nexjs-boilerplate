@@ -13,6 +13,9 @@ router.get("/logout", userCtrl.logout);
 router.get("/kakao", passport.authenticate("kakao", { failureRedirect: "/signin" }));
 router.use("/oauth", userCtrl.kakaoLogin);
 
+router.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"], failureRedirect: "/signin" }));
+router.use("/auth/facebook/callback", userCtrl.facebookLogin);
+
 router.use("/loginwithemail", userCtrl.loginwithemail);
 
 // 구글 인증

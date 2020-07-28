@@ -6,6 +6,8 @@ const userSchema = mongoose.Schema({
 	password: { type: String, select: false },
 	provider: String,
 	id: String,
+	facebookId: String,
+	facebookName: String,
 	mobile: String,
 	confirmed: { type: Boolean, default: false },
 	verify_key: String,
