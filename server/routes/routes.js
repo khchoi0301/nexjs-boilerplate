@@ -27,4 +27,7 @@ router.get("/loginwithemail", userCtrl.loginwithemail);
 // send email with magic link
 router.post("/sendverifyemail", userCtrl.sendVerifyEmail);
 
+// User
+router.post("/user", userCtrl.updateUser);
+
 module.exports = router;

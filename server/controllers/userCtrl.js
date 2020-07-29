@@ -92,7 +92,7 @@ const verifyEmail = async (user) => {
 
 	// verify key를 일정 시간 후 무효화 시킴
 	setTimeout(() => {
-		console.log("===settimeout", _id, verify_key, User.findByIdAndUpdate);
+		console.log("===settimeout", _id, verify_key);
 		User.findByIdAndUpdate(_id, { verify_key: "Invalid" }, (err, res) => {
 			console.log("res", err, res);
 		});
@@ -214,6 +214,28 @@ exports.logout = (req, res, next) => {
 	console.log("logout");
 	req.logout();
 	res.json();
+};
+
+exports.updateUser = async (req, res) => {
+	const { body = {}, user = {} } = req;
+	const unhashed = body.password;
+  console.log("updateUser", body, user)
+
+	if (unhashed) {
+		bcrypt.hash(unhashed, 10, async (err, password) => {
+      if(err){
+        console.warn(err);
+			  res.json("fail to hash pw");
+      }
+
+			await User.findByIdAndUpdate(user._id, { password });
+			res.json("success");
+		});
+		return;
+	}
+
+	await User.findByIdAndUpdate(user._id, body);
+	res.json("success");
 };
 
 const searchUser = async (req, _id) => {
