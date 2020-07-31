@@ -3,10 +3,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
+import { ToastContainer, toast } from "react-toastify";
 
-import { getLogout } from "../../lib/api";
+import { getLogout, getUser } from "../../lib/api";
 import { getSessionFromClient } from "../../lib/auth";
 import Avatar from "./Avatar";
+import CustomInput from "./CustomInput";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -23,18 +25,26 @@ const Mypage = () => {
 	const [user, setUser] = useState("");
 	const classes = useStyles();
 
+	const openToast = () => {
+		toast.success("🦄 변경 사항이 적용되었습니다!", {
+			position: "top-center",
+			autoClose: 1500,
+			hideProgressBar: true,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: true,
+			progress: undefined
+		});
+	};
+
 	useEffect(() => {
-		const { user } = getSessionFromClient();
-		if (user) {
-			setUser(user);
-		} else {
-			if (typeof window !== "undefined") {
-				console.log("Mypage, not logined");
-				// const name = localStorage.getItem("name");
-				// setUser(name);
+		(async () => {
+			const user = await getUser(); // getSessionFromClient();
+			if (user) {
+				setUser(user);
 			}
-		}
-	});
+		})();
+	}, []);
 
 	return (
 		<div>
@@ -46,11 +56,8 @@ const Mypage = () => {
 					<Grid item xs={4}>
 						<Avatar />
 					</Grid>
+					<CustomInput title={"name"} initVal={user.name} toast={openToast}/>
 					<Grid item xs={4}>
-						<span>{user.name}</span>
-					</Grid>
-					<Grid item xs={4}>
-						<Button variant="contained">수정</Button>
 					</Grid>
 				</Grid>
 				<Grid container spacing={2} justify="center" style={{ paddingBottom: "2rem", paddingTop: "2rem", borderBottom: "1px solid gray" }}>
@@ -85,20 +92,13 @@ const Mypage = () => {
 						<Button variant="contained">수정</Button>
 					</Grid>
 					<Grid item xs={4}>
-						연락처
+						휴대폰번호
 					</Grid>
-					<Grid item xs={8} style={{ display: "flex", justifyContent: "space-between" }}>
-						<div>{user.mobile}</div>
-						<Button variant="contained">수정</Button>
-					</Grid>
+					<CustomInput title={"mobile"} initVal={user.mobile} toast={openToast}/>
 					<Grid item xs={4}>
 						주소
 					</Grid>
-					<Grid item xs={8} style={{ display: "flex", justifyContent: "space-between" }}>
-						<div>{user.address}</div>
-						<Button variant="contained">수정</Button>
-					</Grid>
-
+					<CustomInput title={"adrs"} initVal={user.address} toast={openToast}/>
 				</Grid>
 				<Grid container spacing={2} justify="center" style={{ paddingBottom: "2rem", paddingTop: "2rem", borderBottom: "1px solid gray" }}>
 					<Grid item xs={12}>
@@ -120,7 +120,7 @@ const Mypage = () => {
 						<h1 className="sign-out" onClick={getLogout}>로그아웃</h1>
 					</Grid>
 				</Grid>
-
+				<ToastContainer />
 			</Container>
 			<style gsx>{`
                 .sign-out {

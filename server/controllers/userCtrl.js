@@ -216,26 +216,35 @@ exports.logout = (req, res, next) => {
 	res.json();
 };
 
+exports.getUser = async (req, res) => {
+  const { user = {} } = req;
+	console.log("getUser",  user);
+
+	const result = await User.findById(user._id);
+	res.json(result);
+};
+
 exports.updateUser = async (req, res) => {
 	const { body = {}, user = {} } = req;
 	const unhashed = body.password;
-  console.log("updateUser", body, user)
+	let result;
+	console.log("updateUser", body, user);
 
 	if (unhashed) {
 		bcrypt.hash(unhashed, 10, async (err, password) => {
-      if(err){
-        console.warn(err);
+			if (err) {
+				console.warn(err);
 			  res.json("fail to hash pw");
-      }
+			}
 
-			await User.findByIdAndUpdate(user._id, { password });
-			res.json("success");
+			result = await User.findByIdAndUpdate(user._id, { password }, { new: true });
+			res.json(result);
 		});
 		return;
 	}
 
-	await User.findByIdAndUpdate(user._id, body);
-	res.json("success");
+	result = await User.findByIdAndUpdate(user._id, body, { new: true });
+	res.json(result);
 };
 
 const searchUser = async (req, _id) => {

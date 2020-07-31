@@ -28,6 +28,7 @@ router.get("/loginwithemail", userCtrl.loginwithemail);
 router.post("/sendverifyemail", userCtrl.sendVerifyEmail);
 
 // User
+router.get("/user", userCtrl.getUser);
 router.post("/user", userCtrl.updateUser);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import "react-toastify/dist/ReactToastify.css";
 import Router from "next/router";
 import withGA from "next-ga";
 import App from "next/app";
