@@ -137,6 +137,7 @@ module.exports = () => {
 				if (!user.name) {
 					user.name = kakaoName;
 				}
+				user.confirmed = true;
 				await user.save();
 			}
 
@@ -176,6 +177,7 @@ module.exports = () => {
 				if (!user.name) {
 					user.name = facebookName;
 				}
+				user.confirmed = true;
 				await user.save();
 			}
 
@@ -221,6 +223,7 @@ module.exports = () => {
 				if (!user.name) {
 					user.name = googleName;
 				}
+				user.confirmed = true;
 				await user.save();
 			}
 
