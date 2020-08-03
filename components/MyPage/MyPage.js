@@ -9,6 +9,7 @@ import { getLogout, getUser } from "../../lib/api";
 import { getSessionFromClient } from "../../lib/auth";
 import Avatar from "./Avatar";
 import CustomInput from "./CustomInput";
+import AddressInput from "./AddressInput";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -98,7 +99,7 @@ const Mypage = () => {
 					<Grid item xs={4}>
 						주소
 					</Grid>
-					<CustomInput title={"adrs"} initVal={user.address} toast={openToast}/>
+					<AddressInput title={"adrs"} initVal={user.address || {}} toast={openToast}/>
 				</Grid>
 				<Grid container spacing={2} justify="center" style={{ paddingBottom: "2rem", paddingTop: "2rem", borderBottom: "1px solid gray" }}>
 					<Grid item xs={12}>

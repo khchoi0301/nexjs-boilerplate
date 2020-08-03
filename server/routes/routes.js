@@ -31,4 +31,6 @@ router.post("/sendverifyemail", userCtrl.sendVerifyEmail);
 router.get("/user", userCtrl.getUser);
 router.post("/user", userCtrl.updateUser);
 
+router.post("/address", userCtrl.postAddress);
+
 module.exports = router;

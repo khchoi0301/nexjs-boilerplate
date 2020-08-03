@@ -51,7 +51,6 @@ const CustomInput = ({ title, initVal, toast }) => {
 			<Grid item xs={8} style={{ display: "flex", justifyContent: "space-between" }}>
 				{isModifying
 					? <TextField id="standard-basic" variant="outlined" name={title} onChange={handleChange} value={value} /> // label={title}
-				// <input name={title} onChange={handleChange} value={value}></input>
 					: <div>{value}</div> }
 				<Button variant="contained" onClick={handleClick } >
 					{isModifying ? "완료" : "수정" }

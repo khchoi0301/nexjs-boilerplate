@@ -2,8 +2,10 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
 
 const User = require("../models/user");
+const Address = require("../models/address");
 
 require("dotenv").config();
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
@@ -217,10 +219,10 @@ exports.logout = (req, res, next) => {
 };
 
 exports.getUser = async (req, res) => {
-  const { user = {} } = req;
-	console.log("getUser",  user);
+	const { user = {} } = req;
+	console.log("getUser", user);
 
-	const result = await User.findById(user._id);
+	const result = await User.findById(user._id).populate({ path: "address" });
 	res.json(result);
 };
 
@@ -245,6 +247,29 @@ exports.updateUser = async (req, res) => {
 
 	result = await User.findByIdAndUpdate(user._id, body, { new: true });
 	res.json(result);
+};
+
+exports.postAddress = async (req, res) => {
+	const { user = {}, body } = req;
+	const { _id } = user;
+	console.log("postAddress", user, "body", body);
+
+	try {
+		const userData = await User.findById(user._id).populate({ path: "address" });
+		const adrsId = userData.address && userData.address._id;
+		console.log("postadrs2", userData, adrsId);
+
+		if (adrsId) {
+			await Address.findByIdAndUpdate(adrsId, body);
+		} else {
+			const adrs = await new Address(body).save();
+			userData.address = adrs;
+			await userData.save();
+		}
+		res.json(userData);
+	} catch (error) {
+		console.error("postAddress error", error);
+	}
 };
 
 const searchUser = async (req, _id) => {
