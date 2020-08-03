@@ -202,8 +202,10 @@ exports.signin = async (req, res, next) => {
 		console.log("user", user);
 
 		if (user.confirmed === true) {
-			const token = await signJWT(user);
-			res.json({ token });
+			req.logIn(user, async () => {
+				const token = await signJWT(user);
+				res.json({ token });
+			});
 		} else {
 			console.log("verifyEmail", user);
 			await verifyEmail(user);
