@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 
 const User = require("../models/user");
 const Address = require("../models/address");
+const { default: next } = require("next");
 
 require("dotenv").config();
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
@@ -24,8 +25,8 @@ exports.validateSignup = (req, res, next) => {
 	// Name is non-null and is 2 to 15 characters
 	req.checkBody("name", "이름을 입력해 주세요").notEmpty();
 	req
-		.checkBody("name", "Name must be between 2 and 15 character")
-		.isLength({ min: 2, max: 15 });
+		.checkBody("name", "Name must be between 2 and 30 character")
+		.isLength({ min: 2, max: 30 });
 
 	// Email is non-null, valid, and normalized
 	req.checkBody("email", "Enter a valid email").isEmail().normalizeEmail();
@@ -33,8 +34,28 @@ exports.validateSignup = (req, res, next) => {
 	// Password must be non-null between 4 and 15 characters
 	req.checkBody("password", "Enter a password").notEmpty();
 	req
-		.checkBody("password", "password must be between 4 and 15 character")
-		.isLength({ min: 4, max: 15 });
+		.checkBody("password", "4 ~ 20 자리의 비밀 번호를 사용해 주세요")
+		.isLength({ min: 4, max: 20 });
+
+	const errors = req.validationErrors();
+	if (errors) {
+		const firstError = errors.map((error) => error.msg)[0];
+		return res.status(400).send(firstError);
+	}
+	next();
+};
+
+exports.validatePwd = (req, res, next) => {
+	console.log("validatePwd");
+	// express-validator가 middleware로 적용됨
+	req.sanitizeBody("newPwd");
+	// sanitizeBody example Hello world :>)  to  Hello world :&gt;)
+
+	// Password must be non-null between 4 and 15 characters
+	req.checkBody("newPwd", "Enter a password").notEmpty();
+	req
+		.checkBody("newPwd", "4 ~ 20 자리의 비밀 번호를 사용해 주세요")
+		.isLength({ min: 4, max: 20 });
 
 	const errors = req.validationErrors();
 	if (errors) {
@@ -228,27 +249,49 @@ exports.getUser = async (req, res) => {
 	res.json(result);
 };
 
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
 	const { body = {}, user = {} } = req;
-	const unhashed = body.password;
-	let result;
-	console.log("updateUser", body, user);
+	const { currentPwd } = body;
+	console.log("updateUser", body, currentPwd);
 
-	if (unhashed) {
-		bcrypt.hash(unhashed, 10, async (err, password) => {
-			if (err) {
-				console.warn(err);
-			  res.json("fail to hash pw");
-			}
-
-			result = await User.findByIdAndUpdate(user._id, { password }, { new: true });
-			res.json(result);
-		});
+	if (currentPwd) {
+		console.log("currentPwd");
+		next();
 		return;
 	}
 
-	result = await User.findByIdAndUpdate(user._id, body, { new: true });
+	const result = await User.findByIdAndUpdate(user._id, body, { new: true });
 	res.json(result);
+};
+
+exports.updatePwd = async (req, res) => {
+	const { body = {}, user = {} } = req;
+	const { currentPwd, newPwd } = body;
+	console.log("updatePwd", body, user);
+
+	const userData = await User.findOne({ email: user.email }).select("password");
+	console.log("user password", currentPwd, newPwd, userData.password);
+
+	if (!userData.password) {
+		return res.json({ err: "소셜로그인 유저는 비밀 번호를 사용할 수 없습니다." });
+	}
+
+	const isPwdCorrect = bcrypt.compareSync(currentPwd, userData.password);
+	console.log({ isPwdCorrect });
+
+	if (!isPwdCorrect) {
+		return res.json({ err: "현재 비밀번호가 일치 하지 않습니다." });
+	}
+
+	bcrypt.hash(newPwd, 10, async (err, password) => {
+		if (err) {
+			console.warn(err);
+			  res.json({ err: "비밀번호 변경에 실패 하였습니다." });
+		}
+
+		const result = await User.findByIdAndUpdate(user._id, { password }, { new: true });
+		res.json(result);
+	});
 };
 
 exports.postAddress = async (req, res) => {

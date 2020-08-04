@@ -70,7 +70,8 @@ module.exports = () => {
 			User.create({
 				email: email,
 				name: name,
-				password: password
+				password: password,
+				enablePwdChange: true
 			})
 				.then(user => {
 					return done(null, user);

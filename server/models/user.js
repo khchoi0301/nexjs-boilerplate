@@ -4,6 +4,7 @@ const userSchema = mongoose.Schema({
 	name: { type: String, required: true },
 	email: { type: String, unique: true, sparse: true },
 	password: { type: String, select: false },
+	enablePwdChange: { type: Boolean, default: false },
 	kakaoId: { type: String, unique: true, sparse: true },
 	kakaoName: String,
 	facebookId: { type: String, unique: true, sparse: true },

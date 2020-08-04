@@ -10,6 +10,7 @@ import { getSessionFromClient } from "../../lib/auth";
 import Avatar from "./Avatar";
 import CustomInput from "./CustomInput";
 import AddressInput from "./AddressInput";
+import PwdInput from "./PwdInput";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -26,7 +27,21 @@ const Mypage = () => {
 	const [user, setUser] = useState("");
 	const classes = useStyles();
 
-	const openToast = () => {
+	const openToast = (msg) => {
+		const err = msg ? msg.err : null;
+		if (err) {
+			toast.error(`🦄 ${err}`, {
+				position: "top-center",
+				autoClose: 1500,
+				hideProgressBar: true,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined
+			});
+			return;
+		}
+
 		toast.success("🦄 변경 사항이 적용되었습니다!", {
 			position: "top-center",
 			autoClose: 1500,
@@ -88,10 +103,7 @@ const Mypage = () => {
 					<Grid item xs={4}>
 						비밀번호
 					</Grid>
-					<Grid item xs={8} style={{ display: "flex", justifyContent: "space-between" }}>
-						<div>*******</div>
-						<Button variant="contained">수정</Button>
-					</Grid>
+					<PwdInput toast={openToast} user={user} />
 					<Grid item xs={4}>
 						휴대폰번호
 					</Grid>

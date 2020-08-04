@@ -29,7 +29,7 @@ router.post("/sendverifyemail", userCtrl.sendVerifyEmail);
 
 // User
 router.get("/user", userCtrl.getUser);
-router.post("/user", userCtrl.updateUser);
+router.post("/user", userCtrl.updateUser, userCtrl.validatePwd, userCtrl.updatePwd);
 
 router.post("/address", userCtrl.postAddress);
 
