@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
 import { ToastContainer, toast } from "react-toastify";
 
 import { getLogout, getUser } from "../../lib/api";
-import { getSessionFromClient } from "../../lib/auth";
 import Avatar from "./Avatar";
 import CustomInput from "./CustomInput";
 import AddressInput from "./AddressInput";
 import PwdInput from "./PwdInput";
+import Checkbox from "./Checkbox";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -117,10 +116,7 @@ const Mypage = () => {
 					<Grid item xs={12}>
 						<b>광고성 정보 수신</b>
 					</Grid>
-					<Grid item xs={12}>
-						<label><input type="checkbox"></input> 문자 </label>
-						<label><input type="checkbox"></input> 이메일 </label>
-					</Grid>
+					<Checkbox user={user} toast={openToast}/>
 					<Grid item xs={12}>
 						<div>서비스의 중요 안내사항 및 주문/배송에 대한 정보는 위 수신 여부와 관계없이 발송 됩니다.</div>
 					</Grid>

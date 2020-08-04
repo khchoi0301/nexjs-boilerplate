@@ -19,7 +19,11 @@ const userSchema = mongoose.Schema({
 	verify_key: String,
 	address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
 	createdAt: { type: Date, default: new Date() },
-	lastLogin: { type: Date, default: new Date() }
+	lastLogin: { type: Date, default: new Date() },
+	agreement: {
+		sms: { type: Boolean, default: false },
+		email: { type: Boolean, default: false }
+	}
 });
 
 module.exports = mongoose.model("User", userSchema);
