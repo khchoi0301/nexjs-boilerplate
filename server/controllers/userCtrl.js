@@ -6,7 +6,6 @@ const bcrypt = require("bcrypt");
 
 const User = require("../models/user");
 const Address = require("../models/address");
-const { default: next } = require("next");
 
 require("dotenv").config();
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
@@ -262,6 +261,13 @@ exports.updateUser = async (req, res, next) => {
 
 	const result = await User.findByIdAndUpdate(user._id, body, { new: true });
 	res.json(result);
+};
+
+exports.deleteUser = async (req, res) => {
+	const { user = {} } = req;
+	req.logout();
+	await User.deleteOne({ _id: user._id });
+	res.json("deleted");
 };
 
 exports.updatePwd = async (req, res) => {

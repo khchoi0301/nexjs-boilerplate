@@ -4,7 +4,7 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import { ToastContainer, toast } from "react-toastify";
 
-import { getLogout, getUser } from "../../lib/api";
+import { getLogout, getUser, deleteUser } from "../../lib/api";
 import Avatar from "./Avatar";
 import CustomInput from "./CustomInput";
 import AddressInput from "./AddressInput";
@@ -123,16 +123,16 @@ const Mypage = () => {
 				</Grid>
 				<Grid container spacing={2} justify="center" style={{ paddingBottom: "2rem", paddingTop: "2rem" }}>
 					<Grid item xs={12}>
-						<div>회원 탈퇴</div>
+						<div className="clickable" onClick={deleteUser}>회원 탈퇴</div>
 					</Grid>
 					<Grid item xs={12}>
-						<h1 className="sign-out" onClick={getLogout}>로그아웃</h1>
+						<h1 className="clickable" onClick={getLogout}>로그아웃</h1>
 					</Grid>
 				</Grid>
 				<ToastContainer />
 			</Container>
 			<style gsx>{`
-                .sign-out {
+                .clickable {
                     cursor: pointer;
                 }
             `}</style>

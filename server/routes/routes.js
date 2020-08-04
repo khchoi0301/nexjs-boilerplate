@@ -30,6 +30,7 @@ router.post("/sendverifyemail", userCtrl.sendVerifyEmail);
 // User
 router.get("/user", userCtrl.getUser);
 router.post("/user", userCtrl.updateUser, userCtrl.validatePwd, userCtrl.updatePwd);
+router.delete("/user", userCtrl.deleteUser);
 
 router.post("/address", userCtrl.postAddress);
 
