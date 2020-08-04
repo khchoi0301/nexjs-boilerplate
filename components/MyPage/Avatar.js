@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Badge from "@material-ui/core/Badge";
 import Avatar from "@material-ui/core/Avatar";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
+
+import { updateUser } from "../../lib/api";
+import Modal from "./Modal";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -13,12 +17,53 @@ const useStyles = makeStyles((theme) => ({
 	},
 	large: {
 		width: theme.spacing(7),
-		height: theme.spacing(7)
+		height: theme.spacing(7),
+		cursor: "pointer",
+		"&:hover": {
+			border: "5px solid blue"
+		}
 	}
 }));
 
-const BadgeAvatars = () => {
+const modalContents = (setAvatar, closeModal, toast) => {
 	const classes = useStyles();
+
+	const handleClick = (item) => {
+		setAvatar(item);
+		updateUser({ avatar: item });
+		closeModal();
+		toast();
+	};
+
+	return 	(
+		<Grid container spacing={2} justify="center" >
+			{
+				[1, 2, 3].map((item, idx) => {
+					const url = `/img/avatar_sample_${item}.jpg`;
+					return (
+						<Grid item xs={3} key={item}>
+							<Avatar alt="Travis Howard" src={url} className={classes.large} onClick={handleClick.bind(this, item)} />
+						</Grid>
+					);
+				})
+			}
+		</Grid>
+	);
+};
+
+const BadgeAvatars = ({ user, toast }) => {
+	const classes = useStyles();
+	const [isModalOpen, setModalOpen] = useState(false);
+	const [avatar, setAvatar] = useState();
+	const url = `/img/avatar_sample_${avatar}.jpg`;
+
+	useEffect(() => {
+		setAvatar(user.avatar);
+	}, [user]);
+
+	const openModal = () => setModalOpen(true);
+
+	const closeModal = () => setModalOpen(false);
 
 	return (
 		<div className={classes.root}>
@@ -29,10 +74,13 @@ const BadgeAvatars = () => {
 					horizontal: "right"
 				}}
 				badgeContent={
-					<Button variant="contained">수정</Button>
+					<Button variant="contained" size="small" onClick={openModal} >수정</Button>
 				}>
-				<Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" className={classes.large} />
+				<Avatar alt="Travis Howard" src={url} className={classes.large} />
 			</Badge>
+			<Modal isModalOpen={isModalOpen} closeModal={closeModal} title={"아이콘 선택"}>
+				{modalContents(setAvatar, closeModal, toast)}
+			</Modal>
 		</div>
 	);
 };

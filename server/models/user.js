@@ -23,7 +23,8 @@ const userSchema = mongoose.Schema({
 	agreement: {
 		sms: { type: Boolean, default: false },
 		email: { type: Boolean, default: false }
-	}
+	},
+	avatar: { type: Number, default: 1 }
 });
 
 module.exports = mongoose.model("User", userSchema);

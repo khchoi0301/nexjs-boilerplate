@@ -69,7 +69,7 @@ const Mypage = () => {
 						<b>프로필 수정</b>
 					</Grid>
 					<Grid item xs={4}>
-						<Avatar />
+						<Avatar user={user} toast={openToast}/>
 					</Grid>
 					<CustomInput title={"name"} initVal={user.name} toast={openToast}/>
 					<Grid item xs={4}>
