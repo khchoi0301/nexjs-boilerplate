@@ -134,7 +134,7 @@ class SignUpForm extends Component {
   				</button>
   				{this.props.title === "sign in" && (
   					<div style={{ display: "flex", justifyContent: "space-between" }}>
-  						<Link href="/signup">
+  						<Link href="/findPwd">
   							<a style={{ margin: "1.5em" }}>비밀번호찾기</a>
   						</Link>
   						<Link href="/signup">
