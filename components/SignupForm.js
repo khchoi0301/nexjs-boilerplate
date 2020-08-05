@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { signUpUser } from "../lib/api";
-import Router from "next/router";
 import Link from "next/link";
 import { userNameCheck } from "../lib/utils";
 
@@ -35,14 +34,16 @@ class SignUpForm extends Component {
   		return;
   	};
 
-  	if (email && password) {
-  		this.setState({ error: "", isLoading: true });
-
+  	if (name) {
   		const isNameGood = userNameCheck(name);
   		if (isNameGood) {
   			this.showError({ message: isNameGood });
   			return;
   		}
+  	}
+
+  	if (email && password) {
+  		this.setState({ error: "", isLoading: true });
 
   		signUpUser(name, email, password, this.props.title)
   			.catch(this.showError);
