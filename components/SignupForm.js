@@ -2,18 +2,19 @@ import React, { Component } from "react";
 import { signUpUser } from "../lib/api";
 import Router from "next/router";
 import Link from "next/link";
+import { userNameCheck } from "../lib/utils";
 
 const mainGray = "#3a3a3a";
 const mainYellow = "#ffc30f";
 
 class SignUpForm extends Component {
   state = {
-    name: "",
-    email: "",
-    password: "",
-    agreement: false,
-    error: "",
-    isLoading: false,
+  	name: "",
+  	email: "",
+  	password: "",
+  	agreement: false,
+  	error: "",
+  	isLoading: false
   };
 
   handleChange = event => {
@@ -27,15 +28,21 @@ class SignUpForm extends Component {
 
   handleSubmit = event => {
   	const { name, email, password, agreement } = this.state;
-    event.preventDefault();
-    
-    if (name && !agreement) {
-      this.showError({ message: "필수 동의 입니다." });
-      return;
-    };
+  	event.preventDefault();
+
+  	if (name && !agreement) {
+  		this.showError({ message: "필수 동의 입니다." });
+  		return;
+  	};
 
   	if (email && password) {
   		this.setState({ error: "", isLoading: true });
+
+  		const isNameGood = userNameCheck(name);
+  		if (isNameGood) {
+  			this.showError({ message: isNameGood });
+  			return;
+  		}
 
   		signUpUser(name, email, password, this.props.title)
   			.catch(this.showError);
@@ -55,112 +62,112 @@ class SignUpForm extends Component {
   	this.setState({ error, isLoading: false });
   }
 
-  render() {
-    const { name, email, password, agreement, isLoading, error } = this.state;
+  render () {
+  	const { name, email, password, agreement, isLoading, error } = this.state;
 
-    return (
-      <div>
-        <div className="title">
-          <b>회원 정보</b>를<br /> 입력해 주세요
-        </div>
-        <form
-          className="form-container"
-          onSubmit={this.handleSubmit}
-          action=""
-          style={{ margin: "auto" }}
-        >
-          {this.props.title === "sign up" ? (
-            <label className="form-label">
+  	return (
+  		<div>
+  			<div className="title">
+  				<b>회원 정보</b>를<br /> 입력해 주세요
+  			</div>
+  			<form
+  				className="form-container"
+  				onSubmit={this.handleSubmit}
+  				action=""
+  				style={{ margin: "auto" }}
+  			>
+  				{this.props.title === "sign up" ? (
+  					<label className="form-label">
               이름
-              <input
-                className="signup form-input"
-                name="name"
-                placeholder="이름을 입력해 주세요"
-                aria-label="Username"
-                aria-describedby="basic-addon1"
-                onChange={this.handleChange}
-                value={name}
-              />
-            </label>
-          ) : null}
-          <label className="form-label">
+  						<input
+  							className="signup form-input"
+  							name="name"
+  							placeholder="이름을 입력해 주세요"
+  							aria-label="Username"
+  							aria-describedby="basic-addon1"
+  							onChange={this.handleChange}
+  							value={name}
+  						/>
+  					</label>
+  				) : null}
+  				<label className="form-label">
             이메일
-            <input
-              className="signup form-input"
-              type="email"
-              name="email"
-              placeholder="email을 입력해 주세요"
-              onChange={this.handleChange}
-              value={email}
-            />
-          </label>
-          <label className="form-label">
+  					<input
+  						className="signup form-input"
+  						type="email"
+  						name="email"
+  						placeholder="email을 입력해 주세요"
+  						onChange={this.handleChange}
+  						value={email}
+  					/>
+  				</label>
+  				<label className="form-label">
             비밀번호
-            <input
-              className="signup form-input"
-              type="password"
-              name="password"
-              placeholder="비밀 번호를 입력해 주세요"
-              onChange={this.handleChange}
-              value={password}
-            />
-          </label>
-          {this.props.title === "sign up" && (
-            <label>
-              <input 
-                type="checkbox" 
-                name="agreement" 
-                onClick={this.handleClick}
-                value={agreement}
-                className="check-box" />
-              <a href="/" target="_blank">서비스 이용 약관</a>에 동의 합니다
-            </label>
-          )}
-          <div className="signup-error">{error || ""}</div>
-          <button
-            className="delivery form-submit"
-            type="submit"
-            disabled={isLoading}
-          >
-            {isLoading ? "로딩중" : "다음"}
-          </button>
-          {this.props.title === "sign in" && (
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <Link href="/signup">
-                <a style={{ margin: "1.5em" }}>비밀번호찾기</a>
-              </Link>
-              <Link href="/signup">
-                <a style={{ margin: "1.5em" }}>회원가입</a>
-              </Link>
-            </div>
-          )}
-          <div className="or">또는</div>
-          <div className="row">
-            <div className="col-md-offset-1 col-md-5">
-              <a href="/api/auth/kakao">
-                <img width="400px" src="/img/kakao_login_large_wide.png" />
-              </a>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-md-offset-1 col-md-5">
-              <a href="/api/auth/facebook">
-                <img width="400px" src="/img/facebook_login.png" />
-              </a>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-md-offset-1 col-md-5">
-              <a href="/api/auth/google">
-                <img width="400px" src="/img/google_login_light_normal_web@2x.png" />
-              </a>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div ui-view></div>
-          </div>
-        </form>
-        <style jsx>{`
+  					<input
+  						className="signup form-input"
+  						type="password"
+  						name="password"
+  						placeholder="비밀 번호를 입력해 주세요"
+  						onChange={this.handleChange}
+  						value={password}
+  					/>
+  				</label>
+  				{this.props.title === "sign up" && (
+  					<label>
+  						<input
+  							type="checkbox"
+  							name="agreement"
+  							onClick={this.handleClick}
+  							value={agreement}
+  							className="check-box" />
+  						<a href="/" target="_blank">서비스 이용 약관</a>에 동의 합니다
+  					</label>
+  				)}
+  				<div className="signup-error">{error || ""}</div>
+  				<button
+  					className="delivery form-submit"
+  					type="submit"
+  					disabled={isLoading}
+  				>
+  					{isLoading ? "로딩중" : "다음"}
+  				</button>
+  				{this.props.title === "sign in" && (
+  					<div style={{ display: "flex", justifyContent: "space-between" }}>
+  						<Link href="/signup">
+  							<a style={{ margin: "1.5em" }}>비밀번호찾기</a>
+  						</Link>
+  						<Link href="/signup">
+  							<a style={{ margin: "1.5em" }}>회원가입</a>
+  						</Link>
+  					</div>
+  				)}
+  				<div className="or">또는</div>
+  				<div className="row">
+  					<div className="col-md-offset-1 col-md-5">
+  						<a href="/api/auth/kakao">
+  							<img width="400px" src="/img/kakao_login_large_wide.png" />
+  						</a>
+  					</div>
+  				</div>
+  				<div className="row">
+  					<div className="col-md-offset-1 col-md-5">
+  						<a href="/api/auth/facebook">
+  							<img width="400px" src="/img/facebook_login.png" />
+  						</a>
+  					</div>
+  				</div>
+  				<div className="row">
+  					<div className="col-md-offset-1 col-md-5">
+  						<a href="/api/auth/google">
+  							<img width="400px" src="/img/google_login_light_normal_web@2x.png" />
+  						</a>
+  					</div>
+  				</div>
+  				<div className="col-md-6">
+  					<div ui-view></div>
+  				</div>
+  			</form>
+  			<style jsx>{`
           .title {
             font-size: 35px;
           }
@@ -238,8 +245,8 @@ class SignUpForm extends Component {
             margin-top: 1.3rem;
           }
         `}</style>
-      </div>
-    );
+  		</div>
+  	);
   }
 }
 

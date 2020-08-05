@@ -3,6 +3,7 @@ import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { updateUser } from "../../lib/api";
+import { userNameCheck } from "../../lib/utils";
 
 const mobileNumHandler = (value) => {
 	const lastVal = value[value.length - 1];
@@ -29,16 +30,23 @@ const CustomInput = ({ title, initVal, toast }) => {
 
 	const handleClick = async () => {
 		console.log({ [title]: value });
-		setIsModofying(!isModifying);
 		if (isModifying) {
+			const isNameGood = userNameCheck(value);
+
+			if (title === "name" && isNameGood) {
+				toast({ err: isNameGood });
+				return;
+			}
+
 			await updateUser({ [title]: value });
 			toast();
 		}
+
+		setIsModofying(!isModifying);
 	};
 
 	const handleChange = (event) => {
 		let { name, value } = event.target;
-
 		if (name === "mobile") {
 			value = mobileNumHandler(value);
 		}
