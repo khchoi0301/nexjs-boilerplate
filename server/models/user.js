@@ -17,6 +17,7 @@ const userSchema = mongoose.Schema({
 	mobile: String,
 	confirmed: { type: Boolean, default: false },
 	verify_key: String,
+	isFindingPwd: { type: Boolean, default: false },
 	address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
 	createdAt: { type: Date, default: new Date() },
 	lastLogin: { type: Date, default: new Date() },

@@ -73,7 +73,7 @@ const signJWT = async (user) => {
 	);
 };
 
-const sendEmail = async (email, url) => {
+const sendEmail = async (email, url, redirect) => {
 	console.log("sendEmail url", url);
 
 	// create reusable transporter object using the default SMTP transport
@@ -85,11 +85,13 @@ const sendEmail = async (email, url) => {
 		}
 	});
 
+	const emailSubject = redirect ? "Change your password ✔" : "Verify your email ✔";
+
 	// send mail with defined transport object
 	const info = await transporter.sendMail({
 		from: SMTP_FROM_ADDRESS, // sender address
 		to: email, // list of receivers
-		subject: "Verify your email ✔", // Subject line
+		subject: emailSubject, // Subject line
 		text: "Verify Your Account", // plain text body
 		html: `<h1>Verify Your Account</h1><a href\=\"${url}\">Click here to log in with this magic link<a>`, // html body
 	});
@@ -97,11 +99,15 @@ const sendEmail = async (email, url) => {
 	console.log("Message sent: %s", info);
 };
 
-const verifyEmail = async (user) => {
+const verifyEmail = async (user, redirect) => {
 	let { _id, email } = user;
 
 	if (!_id) {
 		const usr = await User.findOne({ email: email });
+		if (!usr) {
+			console.log("user not registered");
+			return { err: "user not registered" };
+		}
 		_id = usr._id;
 	}
 
@@ -109,7 +115,7 @@ const verifyEmail = async (user) => {
 
 	// verify key를 생성하고 user db에  저장
 	const verify_key = crypto.randomBytes(256).toString("hex").substr(50, 25);
-	const url = `http://localhost:3000/api/loginwithemail?verified=${verify_key}&link=${verify_key}`;
+	const url = `http://localhost:3000/api/loginwithemail?verified=${verify_key}&redirect=${redirect}`;
 	await User.findByIdAndUpdate(_id, { verify_key });
 
 	// verify key를 일정 시간 후 무효화 시킴
@@ -121,15 +127,30 @@ const verifyEmail = async (user) => {
 	}, 1000 * 60 * 5); // 5분간만 유효함
 
 	// 메일로 해당 키를 포함한 링크를 보낸다.
-	await sendEmail(email, url);
+	await sendEmail(email, url, redirect);
 };
 
 exports.sendVerifyEmail = async (req, res) => {
 	const { body = {} } = req;
-	const { email } = body;
-	console.log("sendVerifyEmail", email);
-	await verifyEmail({ email });
-	res.json({ email });
+	const { email, redirect } = body;
+	console.log("sendVerifyEmail", email, redirect);
+
+	// redirect 있으면 비밀번호 찾기 모드로 변경
+	if (redirect) {
+		console.log("update isFindingPwd");
+		const user = await User.findOne({ email });
+		user.isFindingPwd = true;
+		// 바로 확인 하지 않아 await 하지 않음
+		user.save();
+	}
+
+	const error = await verifyEmail({ email }, redirect);
+
+	if (error) {
+		res.json(error);
+	} else {
+		res.json({ email });
+	}
 };
 
 exports.loginwithemail = async (req, res, next) => {
@@ -154,14 +175,16 @@ exports.loginwithemail = async (req, res, next) => {
 			if (err) {
 				return res.status(409).json(err);
 			}
-
-			res.redirect("/");
+			console.log("userdata.isFindingPwd", userdata.isFindingPwd);
+			// 비밀번호 찾기 모드에서는 비밀번호 변경 페이지로 이동, 가입 인증 시에는 메인 이동
+			const redirect = userdata.isFindingPwd ? "/changePwd" : "/";
+			res.redirect(redirect);
 		});
 	})(req, res, next);
 };
 
 exports.signup = (req, res, next) => {
-	console.log("signup", passport);
+	console.log("signup");
 	passport.authenticate("local-sign-up", async (err, user, info) => {
 		if (err) {
 			console.warn("==err", err);
@@ -250,15 +273,17 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res, next) => {
 	const { body = {}, user = {} } = req;
-	const { currentPwd } = body;
-	console.log("updateUser", body, currentPwd);
+	const { currentPwd, newPwd } = body;
+	console.log("updateUser", body, currentPwd, newPwd);
 
-	if (currentPwd) {
-		console.log("currentPwd");
+	// 비밀 번호 변경 시에는 체크 후 변경한다
+	if (newPwd) {
+		console.log("비밀번호 변경");
 		next();
 		return;
 	}
 
+	// 다른 유저 정보는 바로 업데이트 한다
 	const result = await User.findByIdAndUpdate(user._id, body, { new: true });
 	res.json(result);
 };
@@ -273,20 +298,21 @@ exports.deleteUser = async (req, res) => {
 exports.updatePwd = async (req, res) => {
 	const { body = {}, user = {} } = req;
 	const { currentPwd, newPwd } = body;
-	console.log("updatePwd", body, user);
 
 	const userData = await User.findOne({ email: user.email }).select("password");
-	console.log("user password", currentPwd, newPwd, userData.password);
+	console.log("updatePwd", body, userData, user);
 
 	if (!userData.password) {
 		return res.json({ err: "소셜로그인 유저는 비밀 번호를 사용할 수 없습니다." });
 	}
 
-	const isPwdCorrect = bcrypt.compareSync(currentPwd, userData.password);
-	console.log({ isPwdCorrect });
-
-	if (!isPwdCorrect) {
-		return res.json({ err: "현재 비밀번호가 일치 하지 않습니다." });
+	// 비밀번호 찾기 모드가 아닐 때에만 현재 비밀 번호 체크를 체크한다
+	if (user.isFindingPwd === false) {
+		const isPwdCorrect = bcrypt.compareSync(currentPwd, userData.password);
+		console.log({ isPwdCorrect });
+		if (!isPwdCorrect) {
+			return res.json({ err: "현재 비밀번호가 일치 하지 않습니다." });
+		}
 	}
 
 	bcrypt.hash(newPwd, 10, async (err, password) => {
@@ -296,6 +322,12 @@ exports.updatePwd = async (req, res) => {
 		}
 
 		const result = await User.findByIdAndUpdate(user._id, { password }, { new: true });
+
+		// 비밀 찾기 모드에서는 비밀 번호 수정 후 로그아웃 시킨다
+		if (user.isFindingPwd) {
+			req.logout();
+		}
+
 		res.json(result);
 	});
 };

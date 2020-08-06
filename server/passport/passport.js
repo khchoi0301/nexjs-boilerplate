@@ -97,18 +97,18 @@ module.exports = () => {
 
 	passport.use("local-link", new LocalStrategy({ // local 전략
 		usernameField: "verified",
-		passwordField: "link",
+		passwordField: "redirect",
 		session: true, // 세션에 저장 여부
 		passReqToCallback: true
-	}, (req, verified, unhashedPw, done) => {
-		console.log("local-link", verified);
+	}, (req, verified, redirect, done) => {
+		console.log("local-link", verified, redirect);
 		User.findOne({ verify_key: verified })
 			.then(async (user) => {
 				if (!user) {
 					return done(null, false, { message: "존재하지 않는 link입니다" });
 				}
 
-				return done(null, user);
+				return done(null, user, { redirect });
 			});
 	}));
 

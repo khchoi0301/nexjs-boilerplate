@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import { updateUser } from "../../lib/api";
+import { openToast } from "../../lib/utils";
 
-const Checkbox = ({ user, toast }) => {
+const Checkbox = ({ user }) => {
 	const { agreement = {} } = user;
 	const [value, setValue] = useState({});
 	const { sms, email } = value;
@@ -20,7 +21,7 @@ const Checkbox = ({ user, toast }) => {
 			...value,
 			[name]: checked
 		});
-		toast();
+		openToast({ type: "success" });
 	};
 
 	return (

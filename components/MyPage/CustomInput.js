@@ -3,7 +3,7 @@ import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { updateUser } from "../../lib/api";
-import { userNameCheck } from "../../lib/utils";
+import { userNameCheck, openToast } from "../../lib/utils";
 
 const mobileNumHandler = (value) => {
 	const lastVal = value[value.length - 1];
@@ -20,7 +20,7 @@ const mobileNumHandler = (value) => {
 	return value;
 };
 
-const CustomInput = ({ title, initVal, toast }) => {
+const CustomInput = ({ title, initVal }) => {
 	const [isModifying, setIsModofying] = useState(false);
 	const [value, setValue] = useState(initVal);
 
@@ -31,15 +31,15 @@ const CustomInput = ({ title, initVal, toast }) => {
 	const handleClick = async () => {
 		console.log({ [title]: value });
 		if (isModifying) {
-			const isNameGood = userNameCheck(value);
+			const namingErr = userNameCheck(value);
 
-			if (title === "name" && isNameGood) {
-				toast({ err: isNameGood });
+			if (title === "name" && namingErr) {
+				openToast({ type: "error", msg: namingErr });
 				return;
 			}
 
 			await updateUser({ [title]: value });
-			toast();
+			openToast({ type: "success" });
 		}
 
 		setIsModofying(!isModifying);

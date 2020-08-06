@@ -7,6 +7,7 @@ import Modal from "@material-ui/core/Modal";
 import { AiFillCloseSquare } from "react-icons/ai";
 
 import { updateUser } from "../../lib/api";
+import { openToast } from "../../lib/utils";
 
 const useStyles = makeStyles((theme) => ({
 	paper: {
@@ -21,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const AdrsInput = ({ title, initVal, toast, user }) => {
+const AdrsInput = ({ title, initVal, user }) => {
 	const classes = useStyles();
 	const [isModalOpen, setModalOpen] = useState(false);
 	const [pwdInfo, setPwdInfo] = useState({ });
@@ -33,10 +34,10 @@ const AdrsInput = ({ title, initVal, toast, user }) => {
 	const closeModal = () => setModalOpen(false);
 
 	const handleClick = async () => {
-		console.log("handleClick");
+		console.log("handleClick", currentPwd, newPwd, !currentPwd || !newPwd);
 
 		if (!currentPwd || !newPwd) {
-			toast({ err: "비밀번호를 입력해 주세요" });
+			openToast({ type: "error", msg: "비밀번호를 입력해 주세요" });
 			return;
 		}
 
@@ -46,9 +47,9 @@ const AdrsInput = ({ title, initVal, toast, user }) => {
 		const res = await updateUser(pwdInfo);
 		console.log(res);
 		if (res.err) {
-			toast(res);
+			openToast({ type: "error", msg: res.err });
 		} else {
-			toast();
+			openToast({ type: "success" });
 		}
 	};
 

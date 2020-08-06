@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 
 import { updateUser } from "../../lib/api";
+import { openToast } from "../../lib/utils";
 import Modal from "./Modal";
 
 const useStyles = makeStyles((theme) => ({
@@ -25,14 +26,14 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const modalContents = (setAvatar, closeModal, toast) => {
+const modalContents = (setAvatar, closeModal) => {
 	const classes = useStyles();
 
 	const handleClick = (item) => {
 		setAvatar(item);
 		updateUser({ avatar: item });
 		closeModal();
-		toast();
+		openToast({ type: "success" });
 	};
 
 	return 	(
@@ -51,7 +52,7 @@ const modalContents = (setAvatar, closeModal, toast) => {
 	);
 };
 
-const BadgeAvatars = ({ user, toast }) => {
+const BadgeAvatars = ({ user }) => {
 	const classes = useStyles();
 	const [isModalOpen, setModalOpen] = useState(false);
 	const [avatar, setAvatar] = useState();
@@ -79,7 +80,7 @@ const BadgeAvatars = ({ user, toast }) => {
 				<Avatar alt="Travis Howard" src={url} className={classes.large} />
 			</Badge>
 			<Modal isModalOpen={isModalOpen} closeModal={closeModal} title={"아이콘 선택"}>
-				{modalContents(setAvatar, closeModal, toast)}
+				{modalContents(setAvatar, closeModal)}
 			</Modal>
 		</div>
 	);

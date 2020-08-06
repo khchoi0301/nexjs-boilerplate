@@ -7,6 +7,7 @@ import Modal from "@material-ui/core/Modal";
 import { AiFillCloseSquare } from "react-icons/ai";
 
 import { postAddress } from "../../lib/api";
+import { openToast } from "../../lib/utils";
 import Address from "./Address";
 
 const useStyles = makeStyles((theme) => ({
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const AdrsInput = ({ title, initVal, toast }) => {
+const AdrsInput = ({ title, initVal }) => {
 	const classes = useStyles();
 	const [isModalOpen, setModalOpen] = useState(false);
 	const [isModifying, setIsModofying] = useState(false);
@@ -51,7 +52,7 @@ const AdrsInput = ({ title, initVal, toast }) => {
 		setIsModofying(!isModifying);
 		if (isModifying) {
 			await postAddress(adrsInfo);
-			toast();
+			openToast({ type: "success" });
 		}
 	};
 

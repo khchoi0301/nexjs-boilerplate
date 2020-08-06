@@ -3,6 +3,7 @@ import Head from "next/head";
 import { Container, Row } from "react-bootstrap";
 import NavbarContainer from "./NavbarContainer";
 import { getSessionFromClient } from "../../lib/auth";
+import { ToastContainer } from "react-toastify";
 
 const Layout = ({ children, title, description }) => {
 	const [user, setUser] = useState("");
@@ -37,6 +38,7 @@ const Layout = ({ children, title, description }) => {
 				}}
 			>
 				{children}
+				<ToastContainer />
 			</Row>
 			<style global jsx>{`
 				html,

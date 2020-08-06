@@ -1,14 +1,13 @@
 import React, { Component } from "react";
-import Router from "next/router";
-import { postSendVerifyEmail } from "../lib/api";
+import { updateUser } from "../lib/api";
 import { openToast } from "../lib/utils";
 
 const mainGray = "#3a3a3a";
 const mainYellow = "#ffc30f";
 
-class FindPwd extends Component {
+class ChangePwd extends Component {
   state = {
-  	email: "",
+  	pwd: "",
   	error: "",
   	isLoading: false
   };
@@ -18,25 +17,15 @@ class FindPwd extends Component {
   }
 
   handleSubmit = async event => {
-  	const { email } = this.state;
+  	const { pwd } = this.state;
   	event.preventDefault();
 
-  	if (email) {
+  	if (pwd) {
   		this.setState({ error: "", isLoading: true });
 
-		const result = await postSendVerifyEmail({ email, redirect: "changePwd" }) || {};
-		
-		if(result.err){
-			openToast({ type: "error", msg: result.err });
-			this.setState({ error: "", isLoading: false });
-
-		} else {
-			Router.push({
-				pathname: "/verify",
-				query: { email: email, findPwd: true }
-			});
-		}
-
+  		await updateUser({ newPwd: pwd });
+		openToast({ type: "success", msg: "수정되었습니다" });
+  		window.location.href = "/"; // 새로고침 필요(Router는 안됨)
   	} else {
   		this.showError({ message: "값을 입력해 주세요" });
   	}
@@ -47,19 +36,19 @@ class FindPwd extends Component {
   	const errStatus = err && err.response && err.response.status;
   	console.log(1, err.response, 2, err.message);
   	if (errStatus === 401) {
-  		error = "email 및 password를 확인 하세요";
+  		error = "pwd 및 password를 확인 하세요";
   	}
 
   	this.setState({ error, isLoading: false });
   }
 
   render () {
-  	const { email, isLoading, error } = this.state;
+  	const { pwd, isLoading, error } = this.state;
 
   	return (
   		<div>
   			<div className="title">
-  				링크를 받을 <b>이메일 주소</b>를<br /> 입력해 주세요
+  				새로운 <b>비밀 번호</b>를<br /> 입력해 주세요
   			</div>
   			<form
   				className="form-container"
@@ -68,14 +57,14 @@ class FindPwd extends Component {
   				style={{ margin: "auto" }}
   			>
   				<label className="form-label">
-            		이메일
+            		비밀번호
   					<input
   						className="signup form-input"
-  						type="email"
-  						name="email"
-  						placeholder="email을 입력해 주세요"
+  						type="password"
+  						name="pwd"
+  						placeholder="비밀번호를 입력해 주세요"
   						onChange={this.handleChange}
-  						value={email}
+  						value={pwd}
   					/>
   				</label>
   				<div className="signup-error">{error || ""}</div>
@@ -165,4 +154,4 @@ class FindPwd extends Component {
   }
 }
 
-export default FindPwd;
+export default ChangePwd;
