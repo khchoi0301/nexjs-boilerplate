@@ -13,6 +13,8 @@ const SMTP_SERVICE = process.env.SMTP_SERVICE;
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS;
+const PRODUCTION_URL = process.env.PRODUCTION_URL;
+const PORT = process.env.PORT;
 
 exports.validateSignup = (req, res, next) => {
 	// express-validator가 middleware로 적용됨
@@ -115,7 +117,7 @@ const verifyEmail = async (user, redirect) => {
 
 	// verify key를 생성하고 user db에  저장
 	const verify_key = crypto.randomBytes(256).toString("hex").substr(50, 25);
-	const url = `http://localhost:3000/api/loginwithemail?verified=${verify_key}&redirect=${redirect}`;
+	const url = `${PRODUCTION_URL}:${PORT}/api/loginwithemail?verified=${verify_key}&redirect=${redirect}`;
 	await User.findByIdAndUpdate(_id, { verify_key });
 
 	// verify key를 일정 시간 후 무효화 시킴
